@@ -1,6 +1,6 @@
 import gleam/io
 import gleam/result
-import simplifile.{FileError}
+import simplifile.{type FileError}
 
 const tailwind_config_path = "./tailwind.config.js"
 
