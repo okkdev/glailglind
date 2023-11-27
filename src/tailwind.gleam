@@ -1,11 +1,13 @@
 import gleam/io
 import gleam/result
+import gleam/bit_array
 import gleam/string
 import simplifile
 import gleam/httpc
 import gleam/http.{Get}
 import gleam/http/request
 import gleam/http/response
+import tom
 
 const tailwind_config_path = "./tailwind.config.js"
 
@@ -15,9 +17,16 @@ const latest_version = "3.3.3"
 
 pub fn main() {
   io.println("Installing TailwindCSS...")
-  let assert Ok(Nil) = generate_config()
-  let assert Ok(Nil) = download_tailwind(latest_version, "macos-arm64")
+  // let assert Ok(Nil) = generate_config()
+
+  let assert Ok(config) = simplifile.read(config_path)
+  let assert Ok(version) = get_tailwind_version(config)
+  io.debug(version)
+  // let assert Ok(Nil) = download_tailwind(latest_version, "macos-arm64")
 }
+
+@external(erlang, "erlang", "system_info")
+fn system_info(a: String) -> BitString
 
 fn generate_config() -> Result(Nil, String) {
   case simplifile.is_file(tailwind_config_path) {
@@ -58,26 +67,30 @@ module.exports = {
   }
 }
 
-// fn get_tailwind_version(config: String) -> Result(String, String) {
-//   config
-//   |> gloml.decode(d.field("tailwind", d.field("version", d.string)))
-//   |> result.replace_error("Error: Version not found.")
-// }
+fn get_tailwind_version(config: String) -> Result(String, String) {
+  config
+  |> tom.parse()
+  |> result.replace_error("Error: Couldn't parse config.")
+  |> result.try(fn(parsed) {
+    tom.get_string(parsed, ["tailwind", "version"])
+    |> result.replace_error("Error: Version not found.")
+  })
+}
 
-// fn try_read_file(path: String) -> Result(String, String) {
-//   case simplifile.is_file(path) {
-//     True -> {
-//       simplifile.read(path)
-//       |> result.map_error(fn(err) {
-//         "Error: Couldn't read file. Reason: " <> io.inspect(err)
-//       })
-//     }
+fn try_read_file(path: String) -> Result(String, String) {
+  case simplifile.is_file(path) {
+    True -> {
+      simplifile.read(path)
+      |> result.map_error(fn(err) {
+        "Error: Couldn't read file. Reason: " <> string.inspect(err)
+      })
+    }
 
-//     False -> {
-//       Error("Error: " <> path <> " not found.")
-//     }
-//   }
-// }
+    False -> {
+      Error("Error: " <> path <> " not found.")
+    }
+  }
+}
 
 // fn target() -> String {
 //   arch_str = :erlang.system_info(:system_architecture)
@@ -106,18 +119,23 @@ fn download_tailwind(version: String, target: String) -> Result(Nil, String) {
       target,
     ])
 
+  let assert Ok(Nil) = simplifile.create_directory_all("./build/bin/")
+
+  io.println("Downloading TailwindCSS...")
+
   request.new()
   |> request.set_method(Get)
   |> request.set_host("github.com")
   |> request.set_path(path)
-  |> httpc.send()
+  |> request.map(bit_array.from_string)
+  |> httpc.send_bits()
   |> result.map_error(fn(err) {
     "Error: Couldn't download tailwind. Reason: " <> string.inspect(err)
   })
   |> result.try(fn(resp) {
-    simplifile.write(resp.body, "./build/bin/tailwindcss-cli")
+    simplifile.write_bits(resp.body, to: "./build/bin/tailwindcss-cli")
     |> result.map_error(fn(err) {
-      "Error: Couldn't write tailwind. Reason: " <> string.inspect(err)
+      "Error: Couldn't write tailwind binary. Reason: " <> string.inspect(err)
     })
   })
 }
