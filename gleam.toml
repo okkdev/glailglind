@@ -1,5 +1,6 @@
 name = "tailwind"
 version = "0.1.0"
+gleam = ">= 0.32.0"
 
 # Fill out these fields if you intend to generate HTML documentation or publish
 # your project to the Hex package manager.
@@ -10,10 +11,11 @@ version = "0.1.0"
 # links = [{ title = "Website", href = "https://gleam.run" }]
 
 [dependencies]
-gleam_stdlib = "~> 0.31"
-simplifile = "~> 0.1"
+gleam_stdlib = "~> 0.32"
 gleam_httpc = "~> 2.1"
 gleam_http = "~> 3.5"
+simplifile = "~> 1.0"
+tom = "~> 0.2"
 
 [dev-dependencies]
 gleeunit = "~> 0.10"
