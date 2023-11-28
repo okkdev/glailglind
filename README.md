@@ -53,6 +53,20 @@ Executes tailwind with the defined arguments.
 
 ## Usage with [LustreSSG](https://github.com/lustre-labs/lustre_ssg)
 
+### Install Package
+
+```sh
+gleam add tailwind
+```
+
+### (Optional) Specify version in config
+
+`gleam.toml`
+```toml
+[tailwind]
+version = "3.3.5" 
+```
+
 ### Install TailwindCSS
 
 ```sh
