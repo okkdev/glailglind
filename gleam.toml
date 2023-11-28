@@ -24,7 +24,7 @@ gleeunit = "~> 0.10"
 [tailwind]
 version = "3.3.5"
 args = [
-    "--config=tailwind.config.js",
-    "--input=./test/css/app.css",
-    "--output=./priv/css/app.css"
+  "--config=tailwind.config.js",
+  "--input=./test/css/app.css",
+  "--output=./priv/css/app.css",
 ]

@@ -111,7 +111,7 @@ fn get_config_string(key: String) -> Result(String, String) {
   get_config()
   |> result.try(fn(parsed) {
     tom.get_string(parsed, ["tailwind", key])
-    |> result.replace_error("Error: Version not found.")
+    |> result.replace_error("Error: Config key \"" <> key <> "\" not found.")
   })
 }
 
@@ -119,7 +119,9 @@ pub fn get_args() -> Result(List(String), String) {
   get_config()
   |> result.try(fn(parsed) {
     tom.get_array(parsed, ["tailwind", "args"])
-    |> result.replace_error("Error: Version not found.")
+    |> result.replace_error(
+      "Error: Config arguments not found. Is the \"args\" key set in the \"gleam.toml\"?",
+    )
     |> result.map(fn(args) {
       list.map(
         args,
