@@ -16,9 +16,15 @@ gleam_httpc = "~> 2.1"
 gleam_http = "~> 3.5"
 simplifile = "~> 1.0"
 tom = "~> 0.2"
+gleam_erlang = "~> 0.23"
 
 [dev-dependencies]
 gleeunit = "~> 0.10"
 
 [tailwind]
-version = "3.3.3"
+version = "3.3.5"
+args = [
+    "--config=tailwind.config.js",
+    "--input=./test/css/app.css",
+    "--output=./priv/css/app.css"
+]
