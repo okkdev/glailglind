@@ -113,7 +113,8 @@ pub fn main() {
     |> ssg.build
     |> result.try(fn(_) {
       [
-        "--config=tailwind.config.js", "--input=./test/css/app.css",
+        "--config=tailwind.config.js",
+        "--input=./src/css/app.css",
         "--output=./priv/css/app.css",
       ]
       |> tailwind.run()
