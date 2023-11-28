@@ -3,7 +3,7 @@
 [![Package Version](https://img.shields.io/hexpm/v/tailwind)](https://hex.pm/packages/tailwind)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/tailwind/)
 
-Installs and runs TailwindCSS./
+Installs and runs TailwindCSS.\
 Unfortunately requires Erlang.
 
 Heavily inspired by [phoenixframework/tailwind](https://github.com/phoenixframework/tailwind/).
@@ -51,7 +51,7 @@ gleam run -m tailwind/run
 
 Executes tailwind with the defined arguments.
 
-## Usage with LustreSSG
+## Usage with [LustreSSG](https://github.com/lustre-labs/lustre_ssg)
 
 ### Install TailwindCSS
 
