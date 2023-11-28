@@ -36,10 +36,18 @@ fn change_file_permissions(file: String, permission: Int) -> Result(Nil, Atom)
 
 pub fn install() {
   io.println("Installing TailwindCSS...")
-  let assert Ok(Nil) = generate_config()
-  let version = get_tailwind_version()
-  let assert Ok(Nil) = download_tailwind(version, target())
-  io.println("TailwindCSS installed!")
+
+  let output =
+    generate_config()
+    |> result.try(fn(_) {
+      let version = get_tailwind_version()
+      download_tailwind(version, target())
+    })
+
+  case output {
+    Ok(_) -> io.println("TailwindCSS installed!")
+    Error(err) -> io.println(err)
+  }
 }
 
 pub fn run(args: List(String)) -> Result(String, String) {

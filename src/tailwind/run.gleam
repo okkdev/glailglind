@@ -1,8 +1,18 @@
 import gleam/io
+import gleam/result
 import tailwind
 
 pub fn main() {
-  let assert Ok(args) = tailwind.get_args()
-  let assert Ok(output) = tailwind.run(args)
-  io.println(output)
+  let output =
+    tailwind.get_args()
+    |> result.try(fn(args) { tailwind.run(args) })
+    |> result.try(fn(output) {
+      io.println(output)
+      Ok(Nil)
+    })
+
+  case output {
+    Error(err) -> io.println(err)
+    _ -> Nil
+  }
 }
