@@ -4,7 +4,7 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/tailwind/)
 
 Installs and runs TailwindCSS.\
-Unfortunately requires Erlang.
+TailwindCSS CLI wrapper.
 
 Heavily inspired by [phoenixframework/tailwind](https://github.com/phoenixframework/tailwind/).
 
