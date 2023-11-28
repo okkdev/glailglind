@@ -45,8 +45,14 @@ pub fn install() {
     })
 
   case output {
-    Ok(_) -> io.println("TailwindCSS installed!")
-    Error(err) -> io.println(err)
+    Ok(_) -> {
+      io.println("TailwindCSS installed!")
+      Ok(Nil)
+    }
+    Error(err) -> {
+      io.println(err)
+      Error(err)
+    }
   }
 }
 
@@ -66,7 +72,7 @@ pub fn run(args: List(String)) -> Result(String, String) {
 
 pub fn install_and_run(args: List(String)) -> Result(String, String) {
   install()
-  run(args)
+  |> result.try(fn(_) { run(args) })
 }
 
 fn generate_config() -> Result(Nil, String) {
