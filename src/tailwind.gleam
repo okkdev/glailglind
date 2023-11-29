@@ -1,3 +1,6 @@
+//// Contains all the functions necessary to install and execute the TailwindCSS CLI.
+//// 
+
 import gleam/io
 import gleam/result
 import gleam/bit_array
@@ -34,6 +37,7 @@ fn cmd(cmd: Charlist) -> String
 @external(erlang, "tailwind_erl", "change_file_permissions")
 fn change_file_permissions(file: String, permission: Int) -> Result(Nil, Atom)
 
+/// Downloads the TailwindCSS CLI matching your operating system and architecture.
 pub fn install() {
   io.println("Installing TailwindCSS...")
 
@@ -56,6 +60,13 @@ pub fn install() {
   }
 }
 
+/// Executes the TailwindCSS CLI with the passed arguments.
+/// # Example
+/// ```gleam
+/// > run(["--config=tailwind.config.js", "--input=./test/input.css", "--output=./build/css/output.css"])
+/// Rebuilding...
+/// Done in 90ms.
+/// ```
 pub fn run(args: List(String)) -> Result(String, String) {
   let cli = get_cli_path()
   case simplifile.is_file(cli) {
@@ -70,6 +81,9 @@ pub fn run(args: List(String)) -> Result(String, String) {
   }
 }
 
+/// Installs and then executes the TailwindCSS CLI with the passed arguments.
+/// 
+/// Check `install()` and `run()`.
 pub fn install_and_run(args: List(String)) -> Result(String, String) {
   install()
   |> result.try(fn(_) { run(args) })
@@ -129,6 +143,9 @@ fn get_config_string(key: String) -> Result(String, String) {
   })
 }
 
+/// Fetches the argument list from the `gleam.toml`.
+/// 
+/// Public because it's needed in `tailwind/run`.
 pub fn get_args() -> Result(List(String), String) {
   get_config()
   |> result.try(fn(parsed) {

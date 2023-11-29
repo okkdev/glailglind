@@ -1,10 +1,9 @@
-# gleam tailwind
+# Gleam Tailwind
 
-[![Package Version](https://img.shields.io/hexpm/v/tailwind)](https://hex.pm/packages/tailwind)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/tailwind/)
+[![Package Version](https://img.shields.io/hexpm/v/gleam_tailwind)](https://hex.pm/packages/gleam_tailwind)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleam_tailwind/)
 
-Installs and runs TailwindCSS.\
-TailwindCSS CLI wrapper.
+Installs and invokes TailwindCSS CLI.
 
 Heavily inspired by [phoenixframework/tailwind](https://github.com/phoenixframework/tailwind/).
 
@@ -13,7 +12,7 @@ Heavily inspired by [phoenixframework/tailwind](https://github.com/phoenixframew
 ### Install Package
 
 ```sh
-gleam add tailwind
+gleam add gleam_tailwind
 ```
 
 ### Configure TailwindCSS
@@ -43,6 +42,14 @@ gleam run -m tailwind/install
 
 This downloads the Tailwind CLI to `./build/bin/tailwind-cli` and generates the `tailwind.config.js` in the root of the project.
 
+### Import Tailwind in your CSS
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
 ### Run TailwindCSS
 
 ```sh
@@ -56,21 +63,30 @@ Executes tailwind with the defined arguments.
 ### Install Package
 
 ```sh
-gleam add tailwind
+gleam add gleam_tailwind
 ```
 
 ### (Optional) Specify version in config
 
 `gleam.toml`
+
 ```toml
 [tailwind]
-version = "3.3.5" 
+version = "3.3.5"
 ```
 
 ### Install TailwindCSS
 
 ```sh
 gleam run -m tailwind/install
+```
+
+### Import Tailwind in your CSS
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 ```
 
 ### Update build script

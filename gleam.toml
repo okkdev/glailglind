@@ -1,14 +1,10 @@
-name = "tailwind"
+name = "gleam_tailwind"
 version = "0.1.0"
 gleam = ">= 0.32.0"
 
-# Fill out these fields if you intend to generate HTML documentation or publish
-# your project to the Hex package manager.
-#
-# description = ""
-# licences = ["Apache-2.0"]
-# repository = { type = "github", user = "username", repo = "project" }
-# links = [{ title = "Website", href = "https://gleam.run" }]
+description = "Gleam modules and functions for installing and invoking TailwindCSS"
+licences = ["Apache-2.0"]
+repository = { type = "github", user = "okkdev", repo = "gleam_tailwind" }
 
 [dependencies]
 gleam_stdlib = "~> 0.32"
@@ -19,12 +15,12 @@ tom = "~> 0.2"
 gleam_erlang = "~> 0.23"
 
 [dev-dependencies]
-gleeunit = "~> 0.10"
+gleeunit = "~> 1.0"
 
 [tailwind]
 version = "3.3.5"
 args = [
   "--config=tailwind.config.js",
   "--input=./test/input.css",
-  "--output=./priv/output.css",
+  "--output=./build/css/output.css",
 ]
