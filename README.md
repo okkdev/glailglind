@@ -1,7 +1,7 @@
-# Gleam Tailwind
+# Glailglind - Tailwind for Gleam
 
-[![Package Version](https://img.shields.io/hexpm/v/gleam_tailwind)](https://hex.pm/packages/gleam_tailwind)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleam_tailwind/)
+[![Package Version](https://img.shields.io/hexpm/v/glailglind)](https://hex.pm/packages/glailglind)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/glailglind/)
 
 Installs and invokes TailwindCSS CLI.
 
@@ -12,7 +12,7 @@ Heavily inspired by [phoenixframework/tailwind](https://github.com/phoenixframew
 ### Install Package
 
 ```sh
-gleam add gleam_tailwind
+gleam add glailglind
 ```
 
 ### Configure TailwindCSS
@@ -63,7 +63,7 @@ Executes tailwind with the defined arguments.
 ### Install Package
 
 ```sh
-gleam add gleam_tailwind
+gleam add glailglind
 ```
 
 ### (Optional) Specify version in config
