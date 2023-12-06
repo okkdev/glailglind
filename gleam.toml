@@ -1,10 +1,10 @@
-name = "gleam_tailwind"
-version = "0.1.0"
+name = "glailglind"
+version = "1.0.0"
 gleam = ">= 0.32.0"
 
 description = "Gleam modules and functions for installing and invoking TailwindCSS"
 licences = ["Apache-2.0"]
-repository = { type = "github", user = "okkdev", repo = "gleam_tailwind" }
+repository = { type = "github", user = "okkdev", repo = "glailglind" }
 
 [dependencies]
 gleam_stdlib = "~> 0.32"
