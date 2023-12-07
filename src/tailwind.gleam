@@ -10,7 +10,7 @@ import gleam/list
 import gleam/httpc
 import gleam/http.{Get}
 import gleam/http/request
-import gleam/map.{type Map}
+import gleam/dict.{type Dict}
 import gleam/erlang/os.{Darwin, Linux, WindowsNt}
 import gleam/erlang/atom.{type Atom}
 import gleam/erlang/charlist.{type Charlist}
@@ -124,7 +124,7 @@ module.exports = {
   }
 }
 
-fn get_config() -> Result(Map(String, Toml), String) {
+fn get_config() -> Result(Dict(String, Toml), String) {
   simplifile.read(config_path)
   |> result.map_error(fn(err) {
     "Error: Couldn't read config. Reason: " <> string.inspect(err)
