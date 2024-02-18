@@ -24,7 +24,6 @@ jobs:
       - run: gleam test --target erlang
       - run: gleam test --target javascript
       - run: gleam publish -y
-      - run: gleam docs publish -y
         env:
           HEXPM_USER: ${{ secrets.HEX_USERNAME }}
           HEXPM_PASS: ${{ secrets.HEX_PASSWORD }}
