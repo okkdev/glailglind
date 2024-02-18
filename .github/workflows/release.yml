@@ -22,7 +22,6 @@ jobs:
           exit 1
       - run: gleam format --check src test
       - run: gleam test --target erlang
-      - run: rm -rf ./build/bin
       - run: gleam test --target javascript
       - run: gleam publish -y
       - run: gleam docs publish -y
