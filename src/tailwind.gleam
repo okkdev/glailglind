@@ -3,19 +3,21 @@
 
 import gleam/io
 import gleam/result
-import gleam/bit_array
+import gleam/pair
 import gleam/string
-import gleam/int
 import gleam/list
-import gleam/httpc
-import gleam/http.{Get}
-import gleam/http/request
 import gleam/dict.{type Dict}
-import gleam/erlang/os.{Darwin, Linux, WindowsNt}
-import gleam/erlang/atom.{type Atom}
-import gleam/erlang/charlist.{type Charlist}
 import simplifile
+import shellout
 import tom.{type Toml, String}
+@target(erlang)
+import gleam/bit_array
+@target(erlang)
+import gleam/httpc
+@target(erlang)
+import gleam/http.{Get}
+@target(erlang)
+import gleam/http/request
 
 const tailwind_config_path = "./tailwind.config.js"
 
@@ -23,19 +25,15 @@ const tailwindcli_path = "./build/bin/tailwindcss-cli"
 
 const config_path = "./gleam.toml"
 
-const latest_version = "3.3.5"
+const latest_version = "3.4.1"
 
-@external(erlang, "erlang", "system_info")
-fn system_arch(a: Atom) -> String
+@external(erlang, "tailwind_erl", "os_arch")
+@external(javascript, "./tailwind_js.mjs", "os_arch")
+fn os_arch() -> String
 
-@external(erlang, "erlang", "system_info")
-fn system_wordsize(a: Atom) -> Int
-
-@external(erlang, "os", "cmd")
-fn cmd(cmd: Charlist) -> String
-
-@external(erlang, "tailwind_erl", "change_file_permissions")
-fn change_file_permissions(file: String, permission: Int) -> Result(Nil, Atom)
+@external(erlang, "tailwind_erl", "os_platform")
+@external(javascript, "./tailwind_js.mjs", "os_platform")
+fn os_platform() -> String
 
 /// Downloads the TailwindCSS CLI matching your operating system and architecture.
 pub fn install() {
@@ -69,13 +67,12 @@ pub fn install() {
 /// ```
 pub fn run(args: List(String)) -> Result(String, String) {
   let cli = get_cli_path()
-  case simplifile.is_file(cli) {
-    True -> {
-      charlist.from_string(string.join([cli, ..args], " "))
-      |> cmd()
-      |> Ok()
+  case simplifile.verify_is_file(cli) {
+    Ok(True) -> {
+      shellout.command(run: cli, with: args, in: ".", opt: [])
+      |> result.map_error(fn(err) { pair.second(err) })
     }
-    False -> {
+    _otherwise -> {
       Error("Error: TailwindCSS CLI isn't installed.")
     }
   }
@@ -90,13 +87,13 @@ pub fn install_and_run(args: List(String)) -> Result(String, String) {
 }
 
 fn generate_config() -> Result(Nil, String) {
-  case simplifile.is_file(tailwind_config_path) {
-    True -> {
+  case simplifile.verify_is_file(tailwind_config_path) {
+    Ok(True) -> {
       io.println("TailwindCSS config already exists.")
       Ok(Nil)
     }
 
-    False ->
+    _otherwise ->
       "
 // See the Tailwind configuration guide for advanced usage
 // https://tailwindcss.com/docs/configuration
@@ -113,9 +110,8 @@ module.exports = {
 "
       |> simplifile.write(to: tailwind_config_path)
       |> result.map_error(fn(err) {
-        "Error: Couldn't create tailwind config. Reason: " <> string.inspect(
-          err,
-        )
+        "Error: Couldn't create tailwind config. Reason: "
+        <> string.inspect(err)
       })
       |> result.map(fn(_) {
         io.println("TailwindCSS config created.")
@@ -154,15 +150,12 @@ pub fn get_args() -> Result(List(String), String) {
       "Error: Config arguments not found. Is the \"args\" key set in the \"gleam.toml\"?",
     )
     |> result.map(fn(args) {
-      list.map(
-        args,
-        fn(arg) {
-          case arg {
-            String(a) -> a
-            _ -> ""
-          }
-        },
-      )
+      list.map(args, fn(arg) {
+        case arg {
+          String(a) -> a
+          _ -> ""
+        }
+      })
     })
   })
 }
@@ -178,38 +171,31 @@ fn get_tailwind_version() -> String {
 }
 
 fn target() -> String {
-  let [arch, ..] =
-    atom.create_from_string("system_architecture")
-    |> system_arch()
-    |> string.split(on: "-")
-
-  let wordsize =
-    atom.create_from_string("wordsize")
-    |> system_wordsize()
-    |> int.multiply(8)
-
-  case #(os.family(), arch, wordsize) {
-    #(WindowsNt, "x86_64", 64) -> "windows-x64.exe"
-    #(WindowsNt, "arm", 64) -> "windows-arm64.exe"
-    #(Darwin, "aarch64", 64) | #(Darwin, "arm", 64) -> "macos-arm64"
-    #(Darwin, "x86_64", 64) -> "macos-x64"
-    #(Linux, "aarch64", 64) -> "linux-arm64"
-    #(Linux, "arm", 32) | #(Linux, "armv7" <> _, 32) -> "linux-armv7"
-    #(Linux, "x86_64", 64) | #(Linux, "amd64", 64) -> "linux-x64"
-    #(_os, _arch, _wordsize) ->
-      panic as "Error: Tailwind is not available for " <> string.inspect(os.family()) <> " " <> arch
+  case #(os_platform(), os_arch()) {
+    #("win32", "x86_64") -> "windows-x64.exe"
+    #("win32", "arm" <> _) -> "windows-arm64.exe"
+    #("darwin", "aarch64") | #("darwin", "arm" <> _) -> "macos-arm64"
+    #("darwin", "x86_64") -> "macos-x64"
+    #("linux", "aarch64") -> "linux-arm64"
+    #("linux", "armv7" <> _) -> "linux-armv7"
+    #("linux", "x86_64") | #("linux", "amd64") -> "linux-x64"
+    #(os, arch) ->
+      panic as string.join(
+        ["Error: TailwindCSS CLI is not available for", os, arch],
+        with: " ",
+      )
   }
 }
 
 fn download_tailwind(version: String, target: String) -> Result(Nil, String) {
-  case simplifile.is_file(tailwindcli_path) {
-    True -> {
+  case simplifile.verify_is_file(tailwindcli_path) {
+    Ok(True) -> {
       io.println("TailwindCSS CLI already exists.")
       Ok(Nil)
     }
 
-    False -> {
-      let path =
+    _otherwise -> {
+      let url_path =
         string.concat([
           "/tailwindlabs/tailwindcss/releases/download/v",
           version,
@@ -221,31 +207,47 @@ fn download_tailwind(version: String, target: String) -> Result(Nil, String) {
 
       io.println("Downloading TailwindCSS " <> target <> "...")
 
-      request.new()
-      |> request.set_method(Get)
-      |> request.set_host("github.com")
-      |> request.set_path(path)
-      |> request.map(bit_array.from_string)
-      |> httpc.send_bits()
-      |> result.map_error(fn(err) {
-        "Error: Couldn't download tailwind. Reason: " <> string.inspect(err)
-      })
-      |> result.try(fn(resp) {
-        simplifile.write_bits(resp.body, to: tailwindcli_path)
+      download_bin(url_path)
+      |> result.try(fn(_) {
+        simplifile.set_permissions_octal(tailwindcli_path, 0o755)
         |> result.map_error(fn(err) {
-          "Error: Couldn't write tailwind binary. Reason: " <> string.inspect(
-            err,
-          )
-        })
-        |> result.try(fn(_) {
-          change_file_permissions(tailwindcli_path, 755)
-          |> result.map_error(fn(err) {
-            "Error: Can't change tailwindcli permissions. Reason: " <> string.inspect(
-              err,
-            )
-          })
+          "Error: Can't change tailwindcli permissions. Reason: "
+          <> string.inspect(err)
         })
       })
     }
   }
+}
+
+@target(javascript)
+fn download_bin(path: String) -> Result(Nil, String) {
+  shellout.command(
+    run: "curl",
+    with: ["-sL", "https://github.com" <> path, "-o", tailwindcli_path],
+    in: ".",
+    opt: [],
+  )
+  |> result.replace(Nil)
+  |> result.map_error(fn(err) {
+    "Error: Couldn't download tailwindcss cli. Reason: " <> pair.second(err)
+  })
+}
+
+@target(erlang)
+fn download_bin(path: String) -> Result(Nil, String) {
+  request.new()
+  |> request.set_method(Get)
+  |> request.set_host("github.com")
+  |> request.set_path(path)
+  |> request.map(bit_array.from_string)
+  |> httpc.send_bits()
+  |> result.map_error(fn(err) {
+    "Error: Couldn't download tailwind. Reason: " <> string.inspect(err)
+  })
+  |> result.try(fn(resp) {
+    simplifile.write_bits(resp.body, to: tailwindcli_path)
+    |> result.map_error(fn(err) {
+      "Error: Couldn't write tailwind binary. Reason: " <> string.inspect(err)
+    })
+  })
 }

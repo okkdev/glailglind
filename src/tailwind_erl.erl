@@ -1,14 +1,22 @@
 -module(tailwind_erl).
 
--export([change_file_permissions/2]).
+-export([ os_arch/0, os_platform/0]).
 
-to_result(Result) ->
-    case Result of
-        ok ->
-            {ok, nil};
-        {ok, Value} ->
-            {ok, Value}
-    end.
+os_arch() ->
+    Arch = erlang:system_info(system_architecture),
+    list_to_binary(hd(string:tokens(Arch, "-"))).
 
-change_file_permissions(Path, Permission) ->
-    to_result(file:change_mode(Path, list_to_integer(string:trim(integer_to_list(Permission), leading, "0"), 8))).
+os_platform() ->
+    Platform = case os:type() of
+        {win32, nt} ->
+            "win32";
+        {unix, linux} ->
+            "linux";
+        {unix, darwin} ->
+            "darwin";
+        {unix, freebsd} ->
+            "freebsd";
+        {_, _} ->
+            "unknown"
+    end,
+    list_to_binary(Platform).

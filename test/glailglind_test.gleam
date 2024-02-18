@@ -1,21 +1,37 @@
 import gleeunit
 import gleeunit/should
+import gleam/result
 import tailwind
 import simplifile
+@target(erlang)
+import gleam/erlang/atom
 
 pub fn main() {
   gleeunit.main()
 }
 
-// gleeunit test functions end in `_test`
+// eunit hack to increase timeout
+@target(erlang)
+pub fn install_test_() {
+  let assert Ok(timeout) = atom.from_string("timeout")
+  #(timeout, 30.0, [fn() { install_test_body() }])
+}
+
+@target(javascript)
 pub fn install_test() {
+  install_test_body()
+}
+
+fn install_test_body() {
   tailwind.install()
   |> should.be_ok()
 
-  simplifile.is_file("./build/bin/tailwindcss-cli")
+  simplifile.verify_is_file("./build/bin/tailwindcss-cli")
+  |> result.unwrap(False)
   |> should.be_true()
 }
 
+// This test depends on the install test so it will fail if its run first
 pub fn run_test() {
   [
     "--config=tailwind.config.js", "--input=./test/input.css",
@@ -24,6 +40,7 @@ pub fn run_test() {
   |> tailwind.run()
   |> should.be_ok()
 
-  simplifile.is_file("./build/css/output.css")
+  simplifile.verify_is_file("./build/css/output.css")
+  |> result.unwrap(False)
   |> should.be_true()
 }

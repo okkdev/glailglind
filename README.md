@@ -7,6 +7,8 @@ Installs and invokes TailwindCSS CLI.
 
 Heavily inspired by [phoenixframework/tailwind](https://github.com/phoenixframework/tailwind/).
 
+Compatible with Erlang and Javascript targets. (Javascript target requires `curl` to be available on the host)
+
 ## Usage as module
 
 ### Install Package
@@ -21,7 +23,7 @@ You can configure TailwindCSS in your `gleam.toml` by adding a `tailwind` table:
 
 ```toml
 [tailwind]
-version = "3.3.5" # optional
+version = "3.4.1" # optional
 args = [
     "--config=tailwind.config.js",
     "--input=./src/css/app.css",

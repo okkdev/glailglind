@@ -1,24 +1,25 @@
 name = "glailglind"
 version = "1.0.0"
-gleam = ">= 0.32.0"
+gleam = ">= 0.34.0"
 
 description = "Gleam modules and functions for installing and invoking TailwindCSS"
 licences = ["Apache-2.0"]
 repository = { type = "github", user = "okkdev", repo = "glailglind" }
 
 [dependencies]
-gleam_stdlib = "~> 0.32"
+gleam_stdlib = "~> 0.34 or ~> 1.0"
 gleam_httpc = "~> 2.1"
 gleam_http = "~> 3.5"
 simplifile = "~> 1.0"
 tom = "~> 0.3"
-gleam_erlang = "~> 0.23"
+shellout = "~> 1.4"
+gleam_erlang = "~> 0.24"
 
 [dev-dependencies]
 gleeunit = "~> 1.0"
 
 [tailwind]
-version = "3.3.5"
+version = "3.4.1"
 args = [
   "--config=tailwind.config.js",
   "--input=./test/input.css",
