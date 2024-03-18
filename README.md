@@ -14,7 +14,7 @@ Compatible with Erlang and Javascript targets. (Javascript target requires `curl
 ### Install Package
 
 ```sh
-gleam add glailglind
+gleam add glailglind --dev
 ```
 
 ### Configure TailwindCSS
@@ -129,17 +129,18 @@ pub fn main() {
     |> ssg.add_static_route("/blog", blog.view(posts.all()))
     |> ssg.add_dynamic_route("/blog", posts, post.view)
     |> ssg.build
+    |> result.map_error(fn(e) { string.inspect(e) })
     |> result.try(fn(_) {
       [
-        "--config=tailwind.config.js",
-        "--input=./src/css/app.css",
+        "--config=tailwind.config.js", "--input=./assets/css/app.css",
         "--output=./priv/css/app.css",
       ]
       |> tailwind.run()
     })
 
   case build {
-    Ok(_) -> {
+    Ok(m) -> {
+      io.println(m)
       io.println("Build succeeded!")
     }
     Error(e) -> {
