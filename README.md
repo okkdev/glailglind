@@ -62,6 +62,8 @@ Executes tailwind with the defined arguments.
 
 ## Usage with [LustreSSG](https://github.com/lustre-labs/lustre_ssg)
 
+#### [ℹ️ Lustre Dev Tools have their own TailwindCSS support!](https://github.com/lustre-labs/dev-tools)
+
 ### Install Package
 
 ```sh
