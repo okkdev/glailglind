@@ -1,23 +1,23 @@
 //// Contains all the functions necessary to install and execute the TailwindCSS CLI.
 //// 
 
-import gleam/io
-import gleam/result
-import gleam/pair
-import gleam/string
-import gleam/list
-import gleam/dict.{type Dict}
-import simplifile
-import shellout
-import tom.{type Toml, String}
 @target(erlang)
 import gleam/bit_array
-@target(erlang)
-import gleam/httpc
+import gleam/dict.{type Dict}
 @target(erlang)
 import gleam/http.{Get}
 @target(erlang)
 import gleam/http/request
+@target(erlang)
+import gleam/httpc
+import gleam/io
+import gleam/list
+import gleam/pair
+import gleam/result
+import gleam/string
+import shellout
+import simplifile
+import tom.{type Toml, String}
 
 const tailwind_config_path = "./tailwind.config.js"
 
@@ -171,16 +171,15 @@ fn get_tailwind_version() -> String {
 }
 
 fn target() -> String {
-  case #(os_platform(), os_arch()) {
-    #("win32", "x86_64") | #("win32", "x64") -> "windows-x64.exe"
-    #("win32", "arm" <> _) -> "windows-arm64.exe"
-    #("darwin", "aarch64") | #("darwin", "arm" <> _) -> "macos-arm64"
-    #("darwin", "x86_64") | #("darwin", "x64") -> "macos-x64"
-    #("linux", "aarch64") | #("linux", "arm64") -> "linux-arm64"
-    #("linux", "armv7" <> _) -> "linux-armv7"
-    #("linux", "x86_64") | #("linux", "x64") | #("linux", "amd64") ->
-      "linux-x64"
-    #(os, arch) ->
+  case os_platform(), os_arch() {
+    "win32", "x86_64" | "win32", "x64" -> "windows-x64.exe"
+    "win32", "arm" <> _ -> "windows-arm64.exe"
+    "darwin", "aarch64" | "darwin", "arm" <> _ -> "macos-arm64"
+    "darwin", "x86_64" | "darwin", "x64" -> "macos-x64"
+    "linux", "aarch64" | "linux", "arm64" -> "linux-arm64"
+    "linux", "armv7" <> _ -> "linux-armv7"
+    "linux", "x86_64" | "linux", "x64" | "linux", "amd64" -> "linux-x64"
+    os, arch ->
       panic as string.join(
         ["Error: TailwindCSS CLI is not available for", os, arch],
         with: " ",

@@ -1,10 +1,10 @@
-import gleeunit
-import gleeunit/should
-import gleam/result
-import tailwind
-import simplifile
 @target(erlang)
 import gleam/erlang/atom
+import gleam/result
+import gleeunit
+import gleeunit/should
+import simplifile
+import tailwind
 
 pub fn main() {
   gleeunit.main()
