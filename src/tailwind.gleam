@@ -67,7 +67,7 @@ pub fn install() {
 /// ```
 pub fn run(args: List(String)) -> Result(String, String) {
   let cli = get_cli_path()
-  case simplifile.verify_is_file(cli) {
+  case simplifile.is_file(cli) {
     Ok(True) -> {
       shellout.command(run: cli, with: args, in: ".", opt: [])
       |> result.map_error(fn(err) { pair.second(err) })
@@ -87,7 +87,7 @@ pub fn install_and_run(args: List(String)) -> Result(String, String) {
 }
 
 fn generate_config() -> Result(Nil, String) {
-  case simplifile.verify_is_file(tailwind_config_path) {
+  case simplifile.is_file(tailwind_config_path) {
     Ok(True) -> {
       io.println("TailwindCSS config already exists.")
       Ok(Nil)
@@ -188,7 +188,7 @@ fn target() -> String {
 }
 
 fn download_tailwind(version: String, target: String) -> Result(Nil, String) {
-  case simplifile.verify_is_file(tailwindcli_path) {
+  case simplifile.is_file(tailwindcli_path) {
     Ok(True) -> {
       io.println("TailwindCSS CLI already exists.")
       Ok(Nil)

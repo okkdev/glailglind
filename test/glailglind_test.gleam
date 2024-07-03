@@ -26,7 +26,7 @@ fn install_test_body() {
   tailwind.install()
   |> should.be_ok()
 
-  simplifile.verify_is_file("./build/bin/tailwindcss-cli")
+  simplifile.is_file("./build/bin/tailwindcss-cli")
   |> result.unwrap(False)
   |> should.be_true()
 }
@@ -40,7 +40,7 @@ pub fn run_test() {
   |> tailwind.run()
   |> should.be_ok()
 
-  simplifile.verify_is_file("./build/css/output.css")
+  simplifile.is_file("./build/css/output.css")
   |> result.unwrap(False)
   |> should.be_true()
 }
