@@ -23,13 +23,12 @@ You can configure TailwindCSS in your `gleam.toml` by adding a `tailwind` table:
 
 ```toml
 [tailwind]
-version = "3.4.1" # optional
+version = "4.0.8" # optional
 args = [
-    "--config=tailwind.config.js",
     "--input=./src/css/app.css",
     "--output=./priv/css/app.css"
 ]
-path = "/path/to/tailwindcli" # optional
+path = "/path/to/tailwindcss" # optional
 ```
 
 This lets you define the arguments being run.
@@ -42,14 +41,13 @@ Optionally define a specific TailwindCSS version or the direct path to the Tailw
 gleam run -m tailwind/install
 ```
 
-This downloads the Tailwind CLI to `./build/bin/tailwind-cli` and generates the `tailwind.config.js` in the root of the project.
+This downloads the Tailwind CLI to `./build/bin/tailwindcss` and generates the `input.css` in the root of the project.
 
 ### Import Tailwind in your CSS
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
 ```
 
 ### Run TailwindCSS
@@ -76,7 +74,7 @@ gleam add glailglind
 
 ```toml
 [tailwind]
-version = "3.3.5"
+version = "4.0.8"
 ```
 
 ### Install TailwindCSS
@@ -88,9 +86,7 @@ gleam run -m tailwind/install
 ### Import Tailwind in your CSS
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 ```
 
 ### Update build script
@@ -134,7 +130,7 @@ pub fn main() {
     |> result.map_error(fn(e) { string.inspect(e) })
     |> result.try(fn(_) {
       [
-        "--config=tailwind.config.js", "--input=./assets/css/app.css",
+        "--input=./assets/css/app.css",
         "--output=./priv/css/app.css",
       ]
       |> tailwind.run()
