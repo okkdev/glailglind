@@ -19,13 +19,11 @@ import shellout
 import simplifile
 import tom.{type Toml, String}
 
-const tailwind_config_path = "./tailwind.config.js"
+const tailwind_config_path = "./input.css"
 
-const tailwindcli_path = "./build/bin/tailwindcss-cli"
+const tailwindcli_path = "./build/bin/tailwindcss"
 
 const config_path = "./gleam.toml"
-
-const latest_version = "3.4.1"
 
 @external(erlang, "tailwind_erl", "os_arch")
 @external(javascript, "./tailwind_js.mjs", "os_arch")
@@ -42,7 +40,7 @@ pub fn install() {
   let output =
     generate_config()
     |> result.try(fn(_) {
-      let version = get_tailwind_version()
+      let version = get_config_string("version")
       download_tailwind(version, target())
     })
 
@@ -97,16 +95,9 @@ fn generate_config() -> Result(Nil, String) {
       "
 // See the Tailwind configuration guide for advanced usage
 // https://tailwindcss.com/docs/configuration
+//
+@import \"tailwindcss\";
 
-let plugin = require('tailwindcss/plugin')
-
-module.exports = {
-  content: ['./src/**/*.{html,gleam}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [require('@tailwindcss/forms')],
-}
 "
       |> simplifile.write(to: tailwind_config_path)
       |> result.map_error(fn(err) {
@@ -165,11 +156,6 @@ fn get_cli_path() -> String {
   |> result.unwrap(tailwindcli_path)
 }
 
-fn get_tailwind_version() -> String {
-  get_config_string("version")
-  |> result.unwrap(latest_version)
-}
-
 fn target() -> String {
   case os_platform(), os_arch() {
     "win32", "x86_64" | "win32", "x64" -> "windows-x64.exe"
@@ -187,7 +173,10 @@ fn target() -> String {
   }
 }
 
-fn download_tailwind(version: String, target: String) -> Result(Nil, String) {
+fn download_tailwind(
+  version: Result(String, String),
+  target: String,
+) -> Result(Nil, String) {
   case simplifile.is_file(tailwindcli_path) {
     Ok(True) -> {
       io.println("TailwindCSS CLI already exists.")
@@ -195,13 +184,29 @@ fn download_tailwind(version: String, target: String) -> Result(Nil, String) {
     }
 
     _otherwise -> {
-      let url_path =
-        string.concat([
-          "/tailwindlabs/tailwindcss/releases/download/v",
-          version,
-          "/tailwindcss-",
-          target,
-        ])
+      let url_path = case version {
+        Ok("v" <> version) -> {
+          string.concat([
+            "/tailwindlabs/tailwindcss/releases/download/v",
+            version,
+            "/tailwindcss-",
+            target,
+          ])
+        }
+        Ok(version) ->
+          string.concat([
+            "/tailwindlabs/tailwindcss/releases/download/v",
+            version,
+            "/tailwindcss-",
+            target,
+          ])
+        Error(_) ->
+          string.concat([
+            "/tailwindlabs/tailwindcss/releases/latest/download/",
+            "/tailwindcss-",
+            target,
+          ])
+      }
 
       let assert Ok(Nil) = simplifile.create_directory_all("./build/bin/")
 

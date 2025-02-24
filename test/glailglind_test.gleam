@@ -26,17 +26,16 @@ fn install_test_body() {
   tailwind.install()
   |> should.be_ok()
 
-  simplifile.is_file("./build/bin/tailwindcss-cli")
+  simplifile.is_file("./build/bin/tailwindcss")
   |> result.unwrap(False)
   |> should.be_true()
 }
 
 // This test depends on the install test so it will fail if its run first
 pub fn run_test() {
-  [
-    "--config=tailwind.config.js", "--input=./test/input.css",
-    "--output=./build/css/output.css",
-  ]
+  install_test_()
+
+  ["--input=./test/input.css", "--output=./build/css/output.css"]
   |> tailwind.run()
   |> should.be_ok()
 
