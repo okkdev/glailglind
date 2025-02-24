@@ -14,7 +14,7 @@ pub fn main() {
 @target(erlang)
 pub fn install_test_() {
   let assert Ok(timeout) = atom.from_string("timeout")
-  #(timeout, 30.0, [fn() { install_test_body() }])
+  #(timeout, 60.0, [fn() { install_test_body() }])
 }
 
 @target(javascript)

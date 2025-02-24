@@ -235,12 +235,19 @@ fn download_bin(path: String) -> Result(Nil, String) {
 
 @target(erlang)
 fn download_bin(path: String) -> Result(Nil, String) {
-  request.new()
-  |> request.set_method(Get)
-  |> request.set_host("github.com")
-  |> request.set_path(path)
-  |> request.map(bit_array.from_string)
-  |> httpc.send_bits()
+  let request =
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("github.com")
+    |> request.set_path(path)
+    |> request.map(bit_array.from_string)
+
+  let response =
+    httpc.configure()
+    |> httpc.follow_redirects(True)
+    |> httpc.dispatch_bits(request)
+
+  response
   |> result.map_error(fn(err) {
     "Error: Couldn't download tailwind. Reason: " <> string.inspect(err)
   })
