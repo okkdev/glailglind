@@ -10,15 +10,14 @@ pub fn main() {
   gleeunit.main()
 }
 
-// eunit hack to increase timeout
 @target(erlang)
-pub fn install_test_() {
+pub fn install_erl_test_() {
   let assert Ok(timeout) = atom.from_string("timeout")
-  #(timeout, 60.0, [fn() { install_test_body() }])
+  #(timeout, 60.0, [install_test_body])
 }
 
 @target(javascript)
-pub fn install_test() {
+pub fn install_js_test() {
   install_test_body()
 }
 
@@ -31,10 +30,7 @@ fn install_test_body() {
   |> should.be_true()
 }
 
-// This test depends on the install test so it will fail if its run first
-pub fn run_test() {
-  install_test_()
-
+pub fn tailwind_test() {
   ["--input=./test/input.css", "--output=./build/css/output.css"]
   |> tailwind.run()
   |> should.be_ok()
