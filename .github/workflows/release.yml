@@ -12,15 +12,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "26"
-          gleam-version: "1.2.0"
-      - run: cargo install tomlq
+          otp-version: "27"
+          gleam-version: "1.5.0"
       - run: |
-          if [ "v$(tomlq version -f gleam.toml)" == "${{ github.ref_name }}" ]; then
-            exit 0
+          version="v$(cat gleam.toml | grep -m 1 "version" | sed -r "s/version *= *\"([[:digit:].]+)\"/\1/")"
+          if [ "$version" != "${{ github.ref_name }}" ]; then
+            echo "tag '${{ github.ref_name }}' does not match the version in gleam.toml"
+            echo "expected a tag name 'v$version'"
+            exit 1
           fi
-          echo "tag does not match version in gleam.toml, refusing to publish"
-          exit 1
+        name: check version
       - run: gleam format --check src test
       - run: gleam test --target erlang
       - run: gleam test --target javascript
