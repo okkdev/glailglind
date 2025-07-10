@@ -15,8 +15,6 @@ import shellout
 import simplifile
 import tom.{type Toml, String}
 
-const tailwind_config_path = "./input.css"
-
 const tailwindcli_path = "./build/bin/tailwindcss"
 
 const config_path = "./gleam.toml"
@@ -34,11 +32,8 @@ pub fn install() {
   io.println("Installing TailwindCSS...")
 
   let output =
-    generate_config()
-    |> result.try(fn(_) {
-      let version = get_config_string("version")
-      download_tailwind(version, target())
-    })
+    get_config_string("version")
+    |> download_tailwind(target())
 
   case output {
     Ok(_) -> {
@@ -55,7 +50,7 @@ pub fn install() {
 /// Executes the TailwindCSS CLI with the passed arguments.
 /// # Example
 /// ```gleam
-/// > run(["--config=tailwind.config.js", "--input=./test/input.css", "--output=./build/css/output.css"])
+/// > run(["--input=./test/input.css", "--output=./build/css/output.css"])
 /// Rebuilding...
 /// Done in 90ms.
 /// ```
@@ -78,33 +73,6 @@ pub fn run(args: List(String)) -> Result(String, String) {
 pub fn install_and_run(args: List(String)) -> Result(String, String) {
   install()
   |> result.try(fn(_) { run(args) })
-}
-
-fn generate_config() -> Result(Nil, String) {
-  case simplifile.is_file(tailwind_config_path) {
-    Ok(True) -> {
-      io.println("TailwindCSS config already exists.")
-      Ok(Nil)
-    }
-
-    _otherwise ->
-      "
-// See the Tailwind configuration guide for advanced usage
-// https://tailwindcss.com/docs/configuration
-//
-@import \"tailwindcss\";
-
-"
-      |> simplifile.write(to: tailwind_config_path)
-      |> result.map_error(fn(err) {
-        "Error: Couldn't create tailwind config. Reason: "
-        <> string.inspect(err)
-      })
-      |> result.map(fn(_) {
-        io.println("TailwindCSS config created.")
-        Nil
-      })
-  }
 }
 
 fn get_config() -> Result(Dict(String, Toml), String) {
