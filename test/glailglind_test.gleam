@@ -12,7 +12,7 @@ pub fn main() {
 
 @target(erlang)
 pub fn install_erl_test_() {
-  let assert Ok(timeout) = atom.from_string("timeout")
+  let assert Ok(timeout) = atom.get("timeout")
   #(timeout, 60.0, [install_test_body])
 }
 
