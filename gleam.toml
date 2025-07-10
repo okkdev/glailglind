@@ -1,6 +1,5 @@
 name = "glailglind"
 version = "2.1.0"
-gleam = ">= 0.34.0"
 
 description = "Gleam modules and functions for installing and invoking TailwindCSS"
 licences = ["Apache-2.0"]
