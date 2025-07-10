@@ -1,4 +1,3 @@
-@target(erlang)
 import gleam/erlang/atom
 import gleam/result
 import gleeunit

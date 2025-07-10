@@ -3,3 +3,4 @@
 build
 erl_crash.dump
 tailwind.config.js
+input.css

@@ -1,14 +1,10 @@
 //// Contains all the functions necessary to install and execute the TailwindCSS CLI.
 //// 
 
-@target(erlang)
 import gleam/bit_array
 import gleam/dict.{type Dict}
-@target(erlang)
 import gleam/http.{Get}
-@target(erlang)
 import gleam/http/request
-@target(erlang)
 import gleam/httpc
 import gleam/io
 import gleam/list
