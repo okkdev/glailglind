@@ -19,11 +19,11 @@ gleam add glailglind --dev
 
 ### Configure TailwindCSS
 
-You can configure TailwindCSS in your `gleam.toml` by adding a `tailwind` table:
+You can configure TailwindCSS in your `gleam.toml` by adding a `tools.tailwind` table:
 
 ```toml
-[tailwind]
-version = "4.0.8" # optional
+[tools.tailwind]
+version = "4.2.2" # optional
 args = [
     "--input=./src/css/app.css",
     "--output=./priv/css/app.css"
@@ -73,8 +73,8 @@ gleam add glailglind
 `gleam.toml`
 
 ```toml
-[tailwind]
-version = "4.0.8"
+[tools.tailwind]
+version = "4.2.2"
 ```
 
 ### Install TailwindCSS

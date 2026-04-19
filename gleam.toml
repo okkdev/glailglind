@@ -17,6 +17,6 @@ gleam_erlang = ">= 1.0.0 and < 2.0.0"
 [dev-dependencies]
 gleeunit = ">= 1.6.0 and < 2.0.0"
 
-[tailwind]
-version = "4.0.8"
+[tools.tailwind]
+version = "4.2.2"
 args = ["-i=./test/input.css", "-o=./build/css/output.css"]

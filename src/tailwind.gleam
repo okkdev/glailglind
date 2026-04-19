@@ -89,18 +89,44 @@ fn get_config() -> Result(Dict(String, Toml), String) {
 fn get_config_string(key: String) -> Result(String, String) {
   get_config()
   |> result.try(fn(parsed) {
-    tom.get_string(parsed, ["tailwind", key])
-    |> result.replace_error("Error: Config key \"" <> key <> "\" not found.")
+    case tom.get_string(parsed, ["tools", "tailwind", key]) {
+      Ok(value) -> Ok(value)
+      Error(_) -> {
+        tom.get_string(parsed, ["tailwind", key])
+        |> result.map(fn(value) {
+          io.println(
+            "Warning: [tailwind] configuration is deprecated. Please use [tools.tailwind] instead.",
+          )
+          value
+        })
+        |> result.replace_error(
+          "Error: Config key \"" <> key <> "\" not found.",
+        )
+      }
+    }
   })
 }
 
 /// Fetches the argument list from the `gleam.toml`.
-/// 
+///
 /// Public because it's needed in `tailwind/run`.
 pub fn get_args() -> Result(List(String), String) {
   get_config()
   |> result.try(fn(parsed) {
-    tom.get_array(parsed, ["tailwind", "args"])
+    let toml_args = case tom.get_array(parsed, ["tools", "tailwind", "args"]) {
+      Ok(args) -> Ok(args)
+      Error(_) -> {
+        tom.get_array(parsed, ["tailwind", "args"])
+        |> result.map(fn(args) {
+          io.println(
+            "Warning: [tailwind] configuration is deprecated. Please use [tools.tailwind] instead.",
+          )
+          args
+        })
+      }
+    }
+
+    toml_args
     |> result.replace_error(
       "Error: Config arguments not found. Is the \"args\" key set in the \"gleam.toml\"?",
     )
