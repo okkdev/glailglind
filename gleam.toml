@@ -6,7 +6,7 @@ licences = ["Apache-2.0"]
 repository = { type = "github", user = "okkdev", repo = "glailglind" }
 
 [dependencies]
-gleam_stdlib = ">= 0.61.0 and < 1.0.0"
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
 gleam_httpc = ">= 5.0.0 and < 6.0.0"
 gleam_http = ">= 4.1.0 and < 5.0.0"
 simplifile = ">= 2.2.0 and < 3.0.0"
