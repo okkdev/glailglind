@@ -110,6 +110,7 @@ fn get_config_string(key: String) -> Result(String, String) {
 /// Fetches the argument list from the `gleam.toml`.
 ///
 /// Public because it's needed in `tailwind/run`.
+@internal
 pub fn get_args() -> Result(List(String), String) {
   get_config()
   |> result.try(fn(parsed) {
@@ -157,9 +158,9 @@ fn target() -> String {
     "linux", "x86_64" | "linux", "x64" | "linux", "amd64" -> "linux-x64"
     os, arch ->
       panic as string.join(
-        ["Error: TailwindCSS CLI is not available for", os, arch],
-        with: " ",
-      )
+          ["Error: TailwindCSS CLI is not available for", os, arch],
+          with: " ",
+        )
   }
 }
 
