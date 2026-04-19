@@ -13,7 +13,7 @@ jobs:
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "28"
-          gleam-version: "1.11.1"
+          gleam-version: "1.15.4"
       - run: |
           version="v$(cat gleam.toml | grep -m 1 "version" | sed -r "s/version *= *\"([[:digit:].]+)\"/\1/")"
           if [ "$version" != "${{ github.ref_name }}" ]; then
