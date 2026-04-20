@@ -27,6 +27,5 @@ jobs:
       - run: gleam test --target javascript
       - run: gleam publish -y
         env:
-          HEXPM_USER: ${{ secrets.HEX_USERNAME }}
-          HEXPM_PASS: ${{ secrets.HEX_PASSWORD }}
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
       - uses: softprops/action-gh-release@v2
