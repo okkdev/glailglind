@@ -6,6 +6,7 @@ import gleam/dict.{type Dict}
 import gleam/http.{Get}
 import gleam/http/request
 import gleam/httpc
+import gleam/int
 import gleam/io
 import gleam/list
 import gleam/pair
@@ -17,6 +18,8 @@ import tom.{type Toml, String}
 
 const tailwindcli_path = "./build/bin/tailwindcss"
 
+const checksums_path = "./build/bin/sha256sums.txt"
+
 const config_path = "./gleam.toml"
 
 @external(erlang, "tailwind_erl", "os_arch")
@@ -26,6 +29,10 @@ fn os_arch() -> String
 @external(erlang, "tailwind_erl", "os_platform")
 @external(javascript, "./tailwind_js.mjs", "os_platform")
 fn os_platform() -> String
+
+@external(erlang, "tailwind_erl", "sha256_file")
+@external(javascript, "./tailwind_js.mjs", "sha256_file")
+fn sha256_file(path: String) -> String
 
 /// Downloads the TailwindCSS CLI matching your operating system and architecture.
 pub fn install() {
@@ -175,35 +182,22 @@ fn download_tailwind(
     }
 
     _otherwise -> {
-      let url_path = case version {
-        Ok("v" <> version) -> {
-          string.concat([
-            "/tailwindlabs/tailwindcss/releases/download/v",
-            version,
-            "/tailwindcss-",
-            target,
-          ])
-        }
-        Ok(version) ->
-          string.concat([
-            "/tailwindlabs/tailwindcss/releases/download/v",
-            version,
-            "/tailwindcss-",
-            target,
-          ])
-        Error(_) ->
-          string.concat([
-            "/tailwindlabs/tailwindcss/releases/latest/download/",
-            "/tailwindcss-",
-            target,
-          ])
+      let release_path = case version {
+        Ok("v" <> version) | Ok(version) ->
+          "/tailwindlabs/tailwindcss/releases/download/v" <> version
+        Error(_) -> "/tailwindlabs/tailwindcss/releases/latest/download"
       }
 
       let assert Ok(Nil) = simplifile.create_directory_all("./build/bin/")
 
       io.println("Downloading TailwindCSS " <> target <> "...")
 
-      download_bin(url_path)
+      download_bin(release_path <> "/tailwindcss-" <> target, tailwindcli_path)
+      |> result.try(fn(_) { verify_checksum(release_path, target) })
+      |> result.map_error(fn(err) {
+        let _ = simplifile.delete(tailwindcli_path)
+        err
+      })
       |> result.try(fn(_) {
         simplifile.set_permissions_octal(tailwindcli_path, 0o755)
         |> result.map_error(fn(err) {
@@ -215,11 +209,44 @@ fn download_tailwind(
   }
 }
 
+fn verify_checksum(
+  release_path: String,
+  target: String,
+) -> Result(Nil, String) {
+  download_bin(release_path <> "/sha256sums.txt", checksums_path)
+  |> result.try(fn(_) {
+    let sums = simplifile.read(checksums_path)
+    let _ = simplifile.delete(checksums_path)
+    sums
+    |> result.map_error(fn(err) {
+      "Error: Couldn't read checksums. Reason: " <> string.inspect(err)
+    })
+  })
+  |> result.try(fn(sums) {
+    string.split(sums, "\n")
+    |> list.find_map(fn(line) {
+      case string.split_once(string.trim(line), "  ") {
+        Ok(#(hash, "./tailwindcss-" <> name)) if name == target -> Ok(hash)
+        _ -> Error(Nil)
+      }
+    })
+    |> result.replace_error(
+      "Error: No checksum found for tailwindcss-" <> target <> ".",
+    )
+  })
+  |> result.try(fn(expected) {
+    case sha256_file(tailwindcli_path) == string.lowercase(expected) {
+      True -> Ok(Nil)
+      False -> Error("Error: TailwindCSS CLI checksum mismatch.")
+    }
+  })
+}
+
 @target(javascript)
-fn download_bin(path: String) -> Result(Nil, String) {
+fn download_bin(path: String, to: String) -> Result(Nil, String) {
   shellout.command(
     run: "curl",
-    with: ["-sL", "https://github.com" <> path, "-o", tailwindcli_path],
+    with: ["-sSfL", "https://github.com" <> path, "-o", to],
     in: ".",
     opt: [],
   )
@@ -230,7 +257,7 @@ fn download_bin(path: String) -> Result(Nil, String) {
 }
 
 @target(erlang)
-fn download_bin(path: String) -> Result(Nil, String) {
+fn download_bin(path: String, to: String) -> Result(Nil, String) {
   let request =
     request.new()
     |> request.set_method(Get)
@@ -248,7 +275,17 @@ fn download_bin(path: String) -> Result(Nil, String) {
     "Error: Couldn't download tailwind. Reason: " <> string.inspect(err)
   })
   |> result.try(fn(resp) {
-    simplifile.write_bits(resp.body, to: tailwindcli_path)
+    case resp.status {
+      200 -> Ok(resp)
+      status ->
+        Error(
+          "Error: Couldn't download tailwind. Reason: HTTP "
+          <> int.to_string(status),
+        )
+    }
+  })
+  |> result.try(fn(resp) {
+    simplifile.write_bits(resp.body, to: to)
     |> result.map_error(fn(err) {
       "Error: Couldn't write tailwind binary. Reason: " <> string.inspect(err)
     })
