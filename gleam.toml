@@ -1,5 +1,5 @@
 name = "glailglind"
-version = "2.3.0"
+version = "2.4.0"
 
 description = "Gleam modules and functions for installing and invoking TailwindCSS"
 licences = ["Apache-2.0"]
@@ -18,5 +18,5 @@ gleam_erlang = ">= 1.0.0 and < 2.0.0"
 gleeunit = ">= 1.6.0 and < 2.0.0"
 
 [tools.tailwind]
-version = "4.2.2"
+version = "4.3.5"
 args = ["-i=./test/input.css", "-o=./build/css/output.css"]
